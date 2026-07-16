@@ -1,125 +1,121 @@
-# Electricity Consumption Analysis (EDA)
+# Electricity Consumption — Exploratory Data Analysis
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Pandas](https://img.shields.io/badge/Pandas-EDA-green)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
 ## Overview
 
-This project presents an exploratory data analysis (EDA) of an electricity consumption dataset using Python. The objective is to clean the data, explore consumption patterns, analyze relationships between variables, and derive meaningful insights through statistical analysis and data visualization.
+This project is an end-to-end exploratory data analysis of the UCI 
+Household Electric Power Consumption dataset — 2,075,259 rows of 
+real electricity readings recorded every minute from 2006 to 2010.
 
-The analysis was performed using Google Colab with Python libraries commonly used in data analytics.
-
----
-
-## Objectives
-
-- Perform data cleaning and preprocessing.
-- Identify missing values and duplicates.
-- Explore the distribution of numerical variables.
-- Analyze relationships between electrical measurements.
-- Detect potential outliers.
-- Generate insights supported by visualizations.
-
----
-
-## Dataset
-
-**Dataset:** Household Electric Power Consumption Dataset
-
-The dataset contains historical household electricity consumption measurements collected over time, including various electrical parameters that can be analyzed to understand consumption behavior.
+The goal was to clean and process the raw data, identify meaningful 
+consumption patterns across time, and translate those patterns into 
+clear, actionable energy efficiency recommendations — the same kind 
+of work a data analyst would do in an energy or utilities company.
 
 ---
 
 ## Tools and Technologies
 
-- Python
-- Google Colab
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
+| Tool | Purpose |
+|------|---------|
+| Python | Core analysis language |
+| Pandas | Data cleaning and processing |
+| Matplotlib | Charts and visualisations |
+| Seaborn | Heatmap and visual styling |
+| Google Colab | Notebook environment |
 
 ---
 
-## Project Workflow
+## What I Did
 
-### 1. Data Loading
-- Imported the dataset.
-- Examined data structure and dimensions.
-- Reviewed data types and summary statistics.
-
-### 2. Data Cleaning
-- Checked for missing values.
-- Removed duplicate records.
-- Converted data into appropriate formats where required.
-
-### 3. Exploratory Data Analysis
-- Univariate analysis
-- Bivariate analysis
-- Correlation analysis
-- Outlier detection
-- Distribution analysis
-
-### 4. Data Visualization
-
-The project includes visualizations such as:
-
-- Histograms
-- Box Plots
-- Scatter Plots
-- Correlation Heatmap
-- Distribution Plots
-- Pair Plots
+- Loaded and explored a 2M+ row real-world dataset
+- Handled missing values and converted data types for clean analysis
+- Engineered time features — hour, month, season, day type
+- Built 6 annotated visualisations to uncover demand patterns
+- Derived 3 business recommendations backed by statistical evidence
 
 ---
 
-## Key Insights
+## Key Findings
 
-- Examined the distribution of electricity consumption variables.
-- Identified correlations between electrical measurements.
-- Detected potential outliers within the dataset.
-- Used visualizations to better understand consumption patterns and feature relationships.
+### Monthly Consumption Trend
+![Monthly Trend](chart1_monthly_trend.png)
 
----
-
-## Repository Structure
-
-```
-Electricity-Consumption-EDA/
-│
-├── electricity_eda.ipynb
-├── README.md
-└── images/
-```
+A clear seasonal cycle is visible throughout the data. Winter months 
+consistently show 60 to 80 percent higher consumption than summer 
+months, driven primarily by heating load. The overall average sits 
+at 1.10 kW across the full four-year period.
 
 ---
 
-## How to Run
+### Peak Hours of the Day
+![Peak Hours](chart2_peak_hours.png)
 
-Clone the repository:
-
-```bash
-git clone https://github.com/Akanksha2622/Electricity-Consumption-EDA.git
-```
-
-Install the required libraries:
-
-```bash
-pip install pandas numpy matplotlib seaborn
-```
-
-Open the notebook using Google Colab or Jupyter Notebook and run the cells sequentially.
+Electricity demand peaks at 8 PM every day — the hour when evening 
+cooking, lighting, and home entertainment all run simultaneously. 
+The off-peak window between 2 AM and 5 AM uses approximately 75 
+percent less power than the evening peak.
 
 ---
 
-## Future Improvements
+### Weekday vs Weekend Pattern
+![Weekday vs Weekend](chart3_weekday_weekend.png)
 
-- Develop an interactive dashboard using Power BI or Tableau.
-- Apply time-series forecasting techniques.
-- Build predictive machine learning models.
-- Automate data preprocessing and reporting.
+Weekdays show a sharp spike at 7 AM as occupants wake and prepare 
+for work. This morning surge is completely absent on weekends, where 
+consumption instead builds gradually through the morning and stays 
+elevated from 10 AM through 9 PM as people remain at home.
 
 ---
 
-## Author
+### Seasonal Comparison
+![Seasonal](chart4_seasonal.png)
 
-Akanksha Kumari
+Winter average consumption (1.41 kW) is nearly double that of 
+summer (0.72 kW). This gap points to space heating as the single 
+largest efficiency opportunity in the household energy profile.
 
-GitHub: https://github.com/Akanksha2622
+---
+
+### Year-on-Year Trend
+![Yearly Trend](chart5_yearly.png)
+
+Average consumption fell by 41 percent between 2006 and 2007 and 
+continued to decline gradually through 2010. This sustained downward 
+trend suggests the household progressively adopted more 
+energy-efficient appliances or changed usage behaviour over time.
+
+---
+
+### Correlation Between Measurements
+![Correlation Heatmap](chart6_correlation.png)
+
+Sub_metering_3 — which tracks the water heater and air conditioning 
+unit — shows the strongest correlation with overall consumption at 
+0.64. Voltage shows a mild negative correlation of -0.40 with power 
+draw, meaning voltage dips slightly when heavy appliances are running 
+simultaneously, consistent with known electrical behaviour.
+
+---
+
+## Business Recommendations
+
+Shifting high-power appliances such as washing machines and 
+dishwashers to the 2 AM to 5 AM off-peak window would meaningfully 
+reduce strain on the grid during the 8 PM demand spike.
+
+Winter heating represents the highest-impact efficiency opportunity. 
+Smart thermostat adoption could realistically reduce winter 
+overconsumption by 15 to 20 percent based on the seasonal gap 
+observed in this data.
+
+The distinct weekday versus weekend occupancy pattern suggests 
+that smart home systems could auto-schedule appliances differently 
+on each day type, improving both cost efficiency and grid stability.
+
+---
+
+## Project Structure
