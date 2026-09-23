@@ -6,14 +6,23 @@ import os
 import pandas as pd
 import streamlit as st
 
-from utils import load_clean_data, SEASON_ORDER
+from utils import SEASON_ORDER
 
 st.set_page_config(page_title="Electricity Dashboard", page_icon="⚡", layout="wide")
 
 
 @st.cache_data
 def get_data():
-    return load_clean_data()
+    # hourly totals made by 01_data_cleaning.py (small enough to keep on GitHub)
+    return pd.read_csv("data/hourly_data.csv", index_col="DateTime", parse_dates=True)
+
+
+def avg_kw(data, by=None):
+    # average power = energy used / time, so hours with a few missing minutes don't skew it
+    if by is None:
+        return data["Energy_kWh"].sum() / data["Minutes"].sum() * 60
+    sums = data.groupby(by)[["Energy_kWh", "Minutes"]].sum()
+    return sums["Energy_kWh"] / sums["Minutes"] * 60
 
 
 df = get_data()
@@ -36,19 +45,18 @@ if filtered.empty:
     st.warning("No data for the selected filters")
     st.stop()
 
-power = filtered["Global_active_power"]
-hourly = power.groupby(filtered["Hour"]).mean()
+hourly = avg_kw(filtered, "Hour")
 
 # ---- KPI cards ----
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Average power", f"{power.mean():.2f} kW")
+col1.metric("Average power", f"{avg_kw(filtered):.2f} kW")
 col2.metric("Peak hour", f"{hourly.idxmax()}:00")
-col3.metric("Max reading", f"{power.max():.2f} kW")
-col4.metric("Total energy", f"{power.sum() / 60 / 1000:,.1f} MWh")
+col3.metric("Max reading", f"{filtered['Max_power'].max():.2f} kW")
+col4.metric("Total energy", f"{filtered['Energy_kWh'].sum() / 1000:,.1f} MWh")
 
 # ---- charts ----
 st.subheader("Monthly average consumption")
-st.line_chart(power.resample("ME").mean(), y_label="kW")
+st.line_chart(avg_kw(filtered, pd.Grouper(freq="ME")), y_label="kW")
 
 left, right = st.columns(2)
 
@@ -58,20 +66,17 @@ with left:
 
 with right:
     st.subheader("Weekday vs weekend")
-    by_daytype = filtered.pivot_table(index="Hour", columns="DayType",
-                                      values="Global_active_power", aggfunc="mean")
-    st.line_chart(by_daytype, y_label="kW")
+    st.line_chart(avg_kw(filtered, ["Hour", "DayType"]).unstack(), y_label="kW")
 
 left, right = st.columns(2)
 
 with left:
     st.subheader("Average by season")
-    season_avg = power.groupby(filtered["Season"]).mean().reindex(SEASON_ORDER).dropna()
-    st.bar_chart(season_avg, y_label="kW")
+    st.bar_chart(avg_kw(filtered, "Season").reindex(SEASON_ORDER).dropna(), y_label="kW")
 
 with right:
     st.subheader("Energy share by sub-meter")
-    total_wh = power.sum() * 1000 / 60
+    total_wh = filtered["Energy_kWh"].sum() * 1000
     share = pd.Series({
         "Kitchen": filtered["Sub_metering_1"].sum(),
         "Laundry": filtered["Sub_metering_2"].sum(),

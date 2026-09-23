@@ -1,4 +1,9 @@
-data/
+# raw + cleaned data are too big for GitHub (01_data_cleaning.py downloads/creates them)
+# only the small files the Streamlit app needs are kept
+data/*
+!data/hourly_data.csv
+!data/forecast_2010.csv
+
 .venv/
 __pycache__/
 .ipynb_checkpoints/

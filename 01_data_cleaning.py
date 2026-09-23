@@ -60,3 +60,25 @@ print(df.head())
 
 df.to_csv(CLEAN_FILE)
 print(f"\nSaved cleaned data to {CLEAN_FILE}")
+
+# ---- smaller hourly file for the Streamlit app ----
+# the minute-level file is too big for GitHub, so the dashboard uses hourly totals.
+# keeping energy + minute counts (not averages) so the app's numbers match exactly
+power = df["Global_active_power"]
+hourly = pd.DataFrame({
+    "Energy_kWh": (power / 60).resample("h").sum(),
+    "Minutes": power.resample("h").count(),
+    "Max_power": power.resample("h").max(),
+    "Sub_metering_1": df["Sub_metering_1"].resample("h").sum(),
+    "Sub_metering_2": df["Sub_metering_2"].resample("h").sum(),
+    "Sub_metering_3": df["Sub_metering_3"].resample("h").sum(),
+})
+hourly = hourly[hourly["Minutes"] > 0]
+
+hourly["Year"] = hourly.index.year
+hourly["Hour"] = hourly.index.hour
+hourly["DayType"] = hourly.index.dayofweek.map(lambda d: "Weekend" if d >= 5 else "Weekday")
+hourly["Season"] = hourly.index.month.map(get_season)
+
+hourly.round(4).to_csv("data/hourly_data.csv")
+print(f"Saved hourly data for the dashboard: {len(hourly):,} rows")
