@@ -1,0 +1,62 @@
+# Step 1 - load the raw data, clean it and add time features
+# Dataset: UCI Individual Household Electric Power Consumption
+
+import os
+import zipfile
+import urllib.request
+
+import pandas as pd
+
+from utils import get_season, CLEAN_FILE
+
+DATA_URL = "https://archive.ics.uci.edu/static/public/235/individual+household+electric+power+consumption.zip"
+RAW_FILE = "data/household_power_consumption.txt"
+
+# download the dataset if it's not already there
+if not os.path.exists(RAW_FILE):
+    os.makedirs("data", exist_ok=True)
+    print("Downloading dataset...")
+    urllib.request.urlretrieve(DATA_URL, "data/household_power.zip")
+    with zipfile.ZipFile("data/household_power.zip") as z:
+        z.extractall("data")
+
+# missing values are stored as '?' in this file
+df = pd.read_csv(RAW_FILE, sep=";", na_values="?", low_memory=False)
+
+df["DateTime"] = pd.to_datetime(df["Date"] + " " + df["Time"], format="%d/%m/%Y %H:%M:%S")
+df = df.drop(columns=["Date", "Time"])
+df = df.set_index("DateTime")
+
+print(f"Dataset size: {df.shape[0]:,} rows x {df.shape[1]} columns")
+print(f"Date range: {df.index.min()} to {df.index.max()}")
+
+# ---- missing values ----
+print("\nMissing values per column:")
+print(df.isna().sum())
+
+missing_rows = df.isna().any(axis=1).sum()
+print(f"\nRows with missing values: {missing_rows:,} ({missing_rows / len(df) * 100:.2f}%)")
+
+# every column is empty together in these rows (meter didn't record anything)
+# and it's only ~1.25% of the data, so dropping is safer than filling
+df = df.dropna()
+print(f"Rows after cleaning: {len(df):,}")
+
+# ---- sanity checks ----
+print(f"\nDuplicate timestamps: {df.index.duplicated().sum()}")
+print(f"Negative power readings: {(df['Global_active_power'] < 0).sum()}")
+print(f"Voltage range: {df['Voltage'].min()} - {df['Voltage'].max()} V")
+
+# ---- feature engineering ----
+df["Year"] = df.index.year
+df["Month"] = df.index.month
+df["Hour"] = df.index.hour
+df["DayOfWeek"] = df.index.dayofweek
+df["DayType"] = df["DayOfWeek"].apply(lambda d: "Weekend" if d >= 5 else "Weekday")
+df["Season"] = df["Month"].apply(get_season)
+
+print("\nNew columns added: Year, Month, Hour, DayOfWeek, DayType, Season")
+print(df.head())
+
+df.to_csv(CLEAN_FILE)
+print(f"\nSaved cleaned data to {CLEAN_FILE}")
